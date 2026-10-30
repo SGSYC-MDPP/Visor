@@ -27,19 +27,40 @@ MAPAS_BASE.forEach(b => {
 // ====== CAPAS ======
 const capas = {};   // id -> L.GeoJSON
 
-function popupHtml(props) {
-  const claves = POPUP_CAMPOS || Object.keys(props || {});
-  if (!claves.length) return 'Sin atributos';
-  return '<table>' + claves.map(k => `<tr><th>${k}</th><td>${props[k] ?? ''}</td></tr>`).join('') + '</table>';
+function estiloDe(def) {
+  const e = def.estilo || {};
+  const color = e.color || def.color || '#3388ff';
+  return {
+    color,
+    weight: e.weight ?? 2,
+    fillColor: e.fillColor || def.color || color,
+    fillOpacity: e.fillOpacity ?? 0.35,
+    radius: e.radius ?? 6
+  };
+}
+
+function popupHtml(props, def) {
+  props = props || {};
+  let campos;
+  if (def.popup && def.popup.campos) {
+    campos = def.popup.campos;
+  } else {
+    const lista = (typeof POPUP_CAMPOS !== 'undefined' && POPUP_CAMPOS) || Object.keys(props);
+    campos = lista.map(k => ({ campo: k, etiqueta: k }));
+  }
+  if (!campos.length) return 'Sin atributos';
+  return '<table>' + campos.map(c =>
+    `<tr><th>${c.etiqueta}</th><td>${props[c.campo] ?? ''}</td></tr>`).join('') + '</table>';
 }
 
 async function cargarCapa(def) {
   try {
     const datos = await (await fetch(def.archivo)).json();
+    const est = estiloDe(def);
     capas[def.id] = L.geoJSON(datos, {
-      style: { color: def.color, weight: 2, fillColor: def.color, fillOpacity: 0.35 },
-      pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 6, color: def.color, fillOpacity: 0.7 }),
-      onEachFeature: (f, l) => l.bindPopup(popupHtml(f.properties))
+      style: () => ({ color: est.color, weight: est.weight, fillColor: est.fillColor, fillOpacity: est.fillOpacity }),
+      pointToLayer: (f, ll) => L.circleMarker(ll, { radius: est.radius, color: est.color, weight: est.weight, fillColor: est.fillColor, fillOpacity: est.fillOpacity }),
+      onEachFeature: (f, l) => l.bindPopup(popupHtml(f.properties, def))
     });
     return true;
   } catch (e) {
@@ -87,7 +108,8 @@ GRUPOS.forEach(grupo => {
   grupo.capas.forEach(def => {
     const fila = document.createElement('div');
     fila.className = 'capa';
-    fila.innerHTML = `<input type="checkbox" aria-label="${def.nombre}"><span class="muestra" style="background:${def.color}"></span><span class="nombre">${def.nombre}</span><button class="acercar" type="button">Acercar</button>`;
+    const est = estiloDe(def);
+    fila.innerHTML = `<input type="checkbox" aria-label="${def.nombre}"><span class="muestra" style="background:${est.fillColor};border:${Math.max(est.weight, 1)}px solid ${est.color}"></span><span class="nombre">${def.nombre}</span>`;
     const chk = fila.querySelector('input');
     checks.push(chk);
 
@@ -99,11 +121,6 @@ GRUPOS.forEach(grupo => {
         mapa.removeLayer(capas[def.id]);
       }
       actualizarGrupo();
-    };
-    fila.querySelector('.acercar').onclick = async () => {
-      if (!capas[def.id] && !(await cargarCapa(def))) return;
-      const b = capas[def.id].getBounds();
-      if (b.isValid()) mapa.fitBounds(b, { padding: [30, 30] });
     };
     cuerpo.appendChild(fila);
   });
