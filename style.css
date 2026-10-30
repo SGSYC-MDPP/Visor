@@ -42,3 +42,15 @@ input[type=checkbox], input[type=radio] { accent-color:var(--verde); }
   .logo { display:none; }
 }
 button:focus-visible, input:focus-visible { outline:2px solid var(--azul); outline-offset:2px; }
+/* ====== LEYENDA ====== */
+.leyenda { position:absolute; z-index:1000; right:10px; bottom:30px; width:250px; max-height:60%; overflow-y:auto; padding:12px; background:var(--panel); border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.3); font-size:.8rem; }
+.leyenda.oculto { display:none; }
+.leyenda-capa { margin-bottom:10px; }
+.leyenda-capa h3 { margin:0 0 4px; font-size:.82rem; padding-bottom:3px; border-bottom:1px solid var(--borde); }
+.leyenda-item { display:flex; align-items:center; gap:6px; padding:2px 0; }
+.leyenda-item .muestra { flex:none; }
+.leyenda-vacia { color:#777; font-style:italic; }
+.btn-leyenda { position:absolute; z-index:1100; right:10px; bottom:10px; padding:5px 12px; border:0; border-radius:4px; background:#fff; box-shadow:0 1px 5px rgba(0,0,0,.4); font-weight:600; cursor:pointer; }
+@media (max-width:640px) {
+  .leyenda { right:10px; left:10px; width:auto; bottom:50px; max-height:45%; }
+}

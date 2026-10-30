@@ -58,7 +58,14 @@ async function cargarCapa(def) {
     const datos = await (await fetch(def.archivo)).json();
     const est = estiloDe(def);
     capas[def.id] = L.geoJSON(datos, {
-      style: () => ({ color: est.color, weight: est.weight, fillColor: est.fillColor, fillOpacity: est.fillOpacity }),
+      style: f => {
+        let relleno = est.fillColor;
+        if (def.categorias) {
+          const v = String(f.properties?.[def.categorias.campo] ?? '');
+          const it = def.categorias.items.find(i => String(i.valor) === v);
+          relleno = it ? it.color : '#cccccc';   // gris si no coincide ninguna categoría
+        }
+        return { color: est.color, weight: est.weight, fillColor: relleno, fillOpacity: est.fillOpacity };},
       pointToLayer: (f, ll) => L.circleMarker(ll, { radius: est.radius, color: est.color, weight: est.weight, fillColor: est.fillColor, fillOpacity: est.fillOpacity }),
       onEachFeature: (f, l) => l.bindPopup(popupHtml(f.properties, def))
     });
@@ -68,7 +75,26 @@ async function cargarCapa(def) {
     return false;
   }
 }
+// ====== LEYENDA ======
+function itemsLeyenda(def) {
+  if (def.categorias) return def.categorias.items.map(i => ({ etiqueta: i.etiqueta, relleno: i.color, borde: est0(def).color }));
+  const e = estiloDe(def);
+  return [{ etiqueta: def.nombre, relleno: e.fillColor, borde: e.color }];
+}
+function est0(def) { return estiloDe(def); }
 
+function actualizarLeyenda() {
+  const cont = document.getElementById('leyenda-contenido');
+  let html = '';
+  GRUPOS.forEach(g => g.capas.forEach(def => {
+    if (!capas[def.id] || !mapa.hasLayer(capas[def.id])) return;
+    html += `<div class="leyenda-capa"><h3>${def.nombre}</h3>` +
+      itemsLeyenda(def).map(i =>
+        `<div class="leyenda-item"><span class="muestra" style="background:${i.relleno};border:1px solid ${i.borde}"></span><span>${i.etiqueta}</span></div>`
+      ).join('') + '</div>';
+  }));
+  cont.innerHTML = html || '<div class="leyenda-vacia">Activa una capa para ver su leyenda.</div>';
+}
 // ====== PANEL ======
 const cont = document.getElementById('panel-contenido');
 
@@ -109,7 +135,10 @@ GRUPOS.forEach(grupo => {
     const fila = document.createElement('div');
     fila.className = 'capa';
     const est = estiloDe(def);
-    fila.innerHTML = `<input type="checkbox" aria-label="${def.nombre}"><span class="muestra" style="background:${est.fillColor};border:${Math.max(est.weight, 1)}px solid ${est.color}"></span><span class="nombre">${def.nombre}</span>`;
+    const fondo = def.categorias
+      ? `linear-gradient(90deg, ${def.categorias.items.slice(0, 5).map(i => i.color).join(',')})`
+      : est.fillColor;
+    fila.innerHTML = `<input type="checkbox" aria-label="${def.nombre}"><span class="muestra" style="background:${fondo};border:${Math.max(est.weight, 1)}px solid ${est.color}"></span><span class="nombre">${def.nombre}</span>`;
     const chk = fila.querySelector('input');
     checks.push(chk);
 
@@ -121,6 +150,7 @@ GRUPOS.forEach(grupo => {
         mapa.removeLayer(capas[def.id]);
       }
       actualizarGrupo();
+      actualizarLeyenda();
     };
     cuerpo.appendChild(fila);
   });
@@ -141,3 +171,8 @@ if (window.innerWidth <= 640) document.getElementById('panel').classList.add('oc
 
 // Botón superior derecho: personaliza su acción aquí
 document.getElementById('btn-extra').onclick = () => alert('Botón de ejemplo');
+
+const panelLeyenda = document.getElementById('leyenda');
+document.getElementById('btn-leyenda').onclick = () => panelLeyenda.classList.toggle('oculto');
+if (window.innerWidth <= 640) panelLeyenda.classList.add('oculto');
+actualizarLeyenda();

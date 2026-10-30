@@ -16,7 +16,7 @@ const GRUPOS = [
     archivo: "data/COFOPRI.geojson",
     tipo: "poligono",
     visible: true,
-    estilo: { color: "#00ff00", fillColor: "#f39d1279", weight: 2, fillOpacity: 0.95, radius: 8 },
+    estilo: { color: "#e29609", fillColor: "#f39d1279", weight: 1, fillOpacity: 0.95, radius: 8 },
     popup: {
       titulo: "nombre",
       campos: [
@@ -32,7 +32,7 @@ const GRUPOS = [
     archivo: "data/HAB_URBANA.geojson",
     tipo: "poligono",
     visible: true,
-    estilo: { color: "#00ff00", fillColor: "#2ecc407e", weight: 2, fillOpacity: 0.95, radius: 8 },
+    estilo: { color: "#00ff00", fillColor: "#2ecc407e", weight: 1, fillOpacity: 0.95, radius: 8 },
     popup: {
       titulo: "nombre",
       campos: [
@@ -48,7 +48,7 @@ const GRUPOS = [
     archivo: "data/ORD_038.geojson",
     tipo: "poligono",
     visible: true,
-    estilo: { color: "#ffff00", fillColor: "#ffff007a", weight: 0.5, fillOpacity: 0.95, radius: 8 },
+    estilo: { color: "#ffff00", fillColor: "#ffff007a", weight: 1, fillOpacity: 0.95, radius: 8 },
     popup: {
       titulo: "nombre",
       campos: [
@@ -62,8 +62,8 @@ const GRUPOS = [
     { id: 'Vias Locales', nombre: 'Parques y áreas verdes', archivo: 'data/parques.geojson', color: '#2e8b57' },
     { id: 'parques', nombre: 'Parques y áreas verdes', archivo: 'data/parques.geojson', color: '#2e8b57' }
   ]},
-  { nombre: 'Espacios públicos', capas: [] },
-  { nombre: 'Espacios públicos', capas: [] }   // agrega capas aquí
+  { nombre: 'Información Normativa', capas: [] },
+  { nombre: 'Áreas de Conservación', capas: [] }   // agrega capas aquí
 
 ];
 
