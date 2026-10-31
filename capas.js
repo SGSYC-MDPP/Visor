@@ -62,8 +62,8 @@ const GRUPOS = [
     { id: 'Vias Locales', nombre: 'Parques y áreas verdes', archivo: 'data/parques.geojson', color: '#2e8b57' },
     { id: 'parques', nombre: 'Parques y áreas verdes', archivo: 'data/parques.geojson', color: '#2e8b57' }
   ]},
-  { nombre: 'Información Normativa', capas: [] },
-  { nombre: 'Áreas de Conservación', capas: [] }   // agrega capas aquí
+  { nombre: 'Espacios públicos', capas: [] },
+  { nombre: 'Espacios públicos', capas: [] }   // agrega capas aquí
 
 ];
 
